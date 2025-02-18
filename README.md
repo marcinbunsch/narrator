@@ -1,8 +1,9 @@
-# David Attenborough narrates your life. 
+# Krystyna Czubówna narrates your life.
 
 https://twitter.com/charliebholtz/status/1724815159590293764
 
 ## Want to make your own AI app?
+
 Check out [Replicate](https://replicate.com). We make it easy to run machine learning models with an API.
 
 ## Setup
@@ -34,12 +35,13 @@ export ELEVENLABS_VOICE_ID=<voice-id>
 ## Run it!
 
 In on terminal, run the webcam capture:
+
 ```bash
 python capture.py
 ```
+
 In another terminal, run the narrator:
 
 ```bash
 python narrator.py
 ```
-
