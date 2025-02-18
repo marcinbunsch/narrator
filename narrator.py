@@ -5,9 +5,14 @@ import json
 import time
 import simpleaudio as sa
 import errno
-from elevenlabs import generate, play, set_api_key, voices
+from elevenlabs import generate, play, set_api_key, voices, Voice
+from dotenv import load_dotenv
 
-client = OpenAI()
+load_dotenv()
+
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY"),
+)
 
 set_api_key(os.environ.get("ELEVENLABS_API_KEY"))
 
@@ -25,7 +30,8 @@ def encode_image(image_path):
 
 
 def play_audio(text):
-    audio = generate(text, voice=os.environ.get("ELEVENLABS_VOICE_ID"))
+    voice_id = os.environ.get("ELEVENLABS_VOICE_ID")
+    audio = generate(text, voice=Voice(voice_id=voice_id), model="eleven_multilingual_v2")
 
     unique_id = base64.urlsafe_b64encode(os.urandom(30)).decode("utf-8").rstrip("=")
     dir_path = os.path.join("narration", unique_id)
@@ -43,10 +49,10 @@ def generate_new_line(base64_image):
         {
             "role": "user",
             "content": [
-                {"type": "text", "text": "Describe this image"},
+                {"type": "text", "text": "Opisz to zdjęcie"},
                 {
                     "type": "image_url",
-                    "image_url": f"data:image/jpeg;base64,{base64_image}",
+                    "image_url": {"url":f"data:image/jpeg;base64,{base64_image}"},
                 },
             ],
         },
@@ -55,13 +61,13 @@ def generate_new_line(base64_image):
 
 def analyze_image(base64_image, script):
     response = client.chat.completions.create(
-        model="gpt-4-vision-preview",
+        model="gpt-4o-mini",
         messages=[
             {
                 "role": "system",
                 "content": """
-                You are Sir David Attenborough. Narrate the picture of the human as if it is a nature documentary.
-                Make it snarky and funny. Don't repeat yourself. Make it short. If I do anything remotely interesting, make a big deal about it!
+                Odgrywasz rolę Krystyny Czubówny. Opisz zdjęcie w stylu dokumentu przyrodniczego. 
+                Bądź ironiczna i zabawna. Nie powtarzaj się. Bądź zwięzła, maksimum 3 zdania. 
                 """,
             },
         ]
@@ -84,10 +90,10 @@ def main():
         base64_image = encode_image(image_path)
 
         # analyze posture
-        print("👀 David is watching...")
+        print("👀 Krystyna ogląda...")
         analysis = analyze_image(base64_image, script=script)
 
-        print("🎙️ David says:")
+        print("🎙️ Krystyna:")
         print(analysis)
 
         play_audio(analysis)
